@@ -1,0 +1,198 @@
+//
+//  Settings.swift
+//  Family+
+//
+//  Created by CETYS Universidad  on 11/10/25.
+//
+
+import SwiftUI
+
+struct Settings: View {
+    @Environment(\.presentationMode) var presentationMode
+    @State private var navigateToHome = false
+    @State private var navigateToLanguages = false
+    @State private var navigateToNotifications = false
+    @State private var navigateToAbout = false
+    @State private var showLogoutAlert = false
+    
+    var body: some View {
+        
+        ZStack {
+            // Fondo degradado azul
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 30/255, green: 70/255, blue: 140/255),
+                    Color(red: 40/255, green: 90/255, blue: 180/255)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Header
+                HStack {
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 40))
+                        .foregroundColor(.white)
+                    
+                    Text("Ajustes")
+                        .font(.system(size: 36, weight: .bold))
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, 30)
+                .padding(.top, 60)
+                .padding(.bottom, 40)
+                
+                // Contenedor blanco con opciones
+                VStack(spacing: 0) {
+                    // Opción Home
+                    NavigationLink(destination: Home().navigationBarBackButtonHidden(true),
+                                   isActive: $navigateToHome) {
+                        EmptyView()
+                    }
+                    
+                    NavigationLink(destination: Languages().navigationBarBackButtonHidden(true),
+                                   isActive: $navigateToLanguages) {
+                        EmptyView()
+                    }
+                    
+                    Button(action: {
+                        navigateToHome = true
+                    }) {
+                        SettingsOptionRow(
+                            icon: "house.fill",
+                            title: "Home"
+                        )
+                    }
+                    
+                    Divider()
+                        .padding(.leading, 80)
+                    
+                    // Opción Idiomas
+                    Button(action: {
+                        navigateToLanguages = true
+                    }) {
+                        SettingsOptionRow(
+                            icon: "character.textbox",
+                            title: "Idiomas"
+                        )
+                    }
+                    
+                    Divider()
+                        .padding(.leading, 80)
+                    
+                    // Opción Notificaciones
+                    Button(action: {
+                        navigateToNotifications = true
+                    }) {
+                        SettingsOptionRow(
+                            icon: "bell.fill",
+                            title: "Notificaciones"
+                        )
+                    }
+                    
+                    Divider()
+                        .padding(.leading, 80)
+                    
+                    // Opción Sobre nosotros
+                    Button(action: {
+                        navigateToAbout = true
+                    }) {
+                        SettingsOptionRow(
+                            icon: "face.smiling.fill",
+                            title: "Sobre nosotros"
+                        )
+                    }
+                    
+                    Spacer()
+                    
+                    // Botón Cerrar Sesión
+                    Button(action: {
+                        showLogoutAlert = true
+                    }) {
+                        Text("Cerrar Sesión")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 18)
+                            .background(Color(red: 230/255, green: 80/255, blue: 60/255))
+                            .cornerRadius(15)
+                    }
+                    .padding(.horizontal, 30)
+                    .padding(.bottom, 50)
+                }
+                .background(Color.white)
+                .cornerRadius(30, corners: [.topLeft, .topRight])
+            }
+        }
+        .navigationBarHidden(true)
+        .alert(isPresented: $showLogoutAlert) {
+            Alert(
+                title: Text("Cerrar Sesión"),
+                message: Text("¿Estás seguro que deseas cerrar sesión?"),
+                primaryButton: .destructive(Text("Cerrar Sesión")) {
+                    // Aquí iría la lógica de cerrar sesión
+                    print("Sesión cerrada")
+                },
+                secondaryButton: .cancel(Text("Cancelar"))
+            )
+        }
+    }
+}
+
+// Componente para cada fila de opción
+struct SettingsOptionRow: View {
+    let icon: String
+    let title: String
+    
+    var body: some View {
+        HStack(spacing: 20) {
+            Image(systemName: icon)
+                .font(.system(size: 28))
+                .foregroundColor(.black)
+                .frame(width: 40)
+            
+            Text(title)
+                .font(.system(size: 20))
+                .foregroundColor(.black)
+            
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundColor(Color(red: 230/255, green: 80/255, blue: 60/255))
+        }
+        .padding(.horizontal, 30)
+        .padding(.vertical, 25)
+        .background(Color.white)
+    }
+}
+
+// Extensión para redondear esquinas específicas
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
+
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+    
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(
+            roundedRect: rect,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        return Path(path.cgPath)
+    }
+}
+
+#Preview {
+    Settings()
+}
+
