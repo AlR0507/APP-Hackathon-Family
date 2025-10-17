@@ -11,7 +11,6 @@ struct Languages: View {
     @State private var selectedLanguage = "Español"
     @State private var languages = ["Español", "Inglés", "Francés", "Árabe", "Portugués"]
     @State private var showingAddLanguage = false
-    @State private var navigateToSettings = false
     
     @Environment(\.dismiss) var dismiss
     
@@ -24,12 +23,8 @@ struct Languages: View {
             VStack(spacing: 0) {
                 // Header con botón de regreso
                 HStack {
-                    NavigationLink(destination: Settings().navigationBarBackButtonHidden(true),
-                                   isActive: $navigateToSettings) {
-                        EmptyView()
-                    }
                     Button(action: {
-                        navigateToSettings = true
+                        dismiss()
                     }) {
                         Image(systemName: "arrow.left")
                             .font(.system(size: 24))

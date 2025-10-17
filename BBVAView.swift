@@ -176,3 +176,7 @@ struct BBVAView: View {
         }
     }
 }
+
+#Preview {
+    BBVAView()
+}
