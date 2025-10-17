@@ -1,4 +1,3 @@
-
 import SwiftUI
 import MapKit
 
@@ -16,7 +15,7 @@ struct BBVAView: View {
         ZStack(alignment: .bottom) {
             // === 1️⃣ Mapa con pin del BBVA ===
             Map(coordinateRegion: $region, annotationItems: [
-                AztecaPlace(title: "Estadio BBVA", coordinate: DataStore.estadioBBVA)
+                AztecaPlace(id: "estadio-bbva", title: "Estadio BBVA", coordinate: DataStore.estadioBBVA)
             ]) { place in
                 MapAnnotation(coordinate: place.coordinate) {
                     EstadioAnnotationView(title: place.title)
@@ -136,11 +135,15 @@ struct BBVAView: View {
                             }
                         }
 
-                    ServiciosCercanosSidePanel(onClose: {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
-                            mostrarPanelDerecho = false
-                        }
-                    })
+                    // ⬇️ Corrección: pasar el arreglo 'servicios:' requerido
+                    ServiciosCercanosSidePanel(
+                        onClose: {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
+                                mostrarPanelDerecho = false
+                            }
+                        },
+                        servicios: DataStore.familyServicesNearBBVA() // usa tu fuente para BBVA
+                    )
                     .frame(width: UIScreen.main.bounds.width * 0.85)
                     .transition(.move(edge: .trailing))
                 }
@@ -175,8 +178,4 @@ struct BBVAView: View {
                 .padding()
         }
     }
-}
-
-#Preview {
-    BBVAView()
 }
