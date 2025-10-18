@@ -10,13 +10,19 @@ struct Home: View {
     @State private var navigateToSettings = false
     @State private var navigateToLanguages = false
     @State private var navigateToBBVA = false
+    @State private var navigateToAbout = false
     @State private var showSearchBar = false
 
-    // Estado para el Map miniatura
+    // Alturas para sincronizar el grid
+    private let leftTopHeight: CGFloat = 140     // mapa
+    private let leftBottomHeight: CGFloat = 150  // card roja
+    private let gridSpacing: CGFloat = 16        // el spacing del HStack
+
     @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 19.432608, longitude: -99.133209), // CDMX por defecto
+        center: CLLocationCoordinate2D(latitude: 32.5149, longitude: -117.0382), // Tijuana, BC
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
+
 
     var body: some View {
         ZStack {
@@ -30,19 +36,19 @@ struct Home: View {
                                 .aspectRatio(contentMode: .fill)
                                 .frame(height: 200)
                                 .clipped()
-
+                            
                             Color.black.opacity(0.25)
-
+                            
                             // 🔍 Barra de búsqueda condicional
                             VStack {
                                 if showSearchBar {
                                     HStack {
                                         Image(systemName: "magnifyingglass")
                                             .foregroundColor(.gray)
-
+                                        
                                         TextField("Buscar...", text: $searchText)
                                             .foregroundColor(.black)
-
+                                        
                                         Button(action: {
                                             withAnimation {
                                                 showSearchBar = false
@@ -64,11 +70,11 @@ struct Home: View {
                             }
                         }
                         .frame(height: 200)
-
+                        
                         // ====== CONTENIDO PRINCIPAL ======
                         ZStack {
                             Color.white.ignoresSafeArea()
-
+                            
                             VStack(spacing: 18) {
                                 // ---------- Banner rojo ----------
                                 ZStack {
@@ -76,7 +82,7 @@ struct Home: View {
                                         .fill(Color(red: 230/255, green: 80/255, blue: 60/255))
                                         .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
                                         .padding(.top, 18)
-
+                                    
                                     HStack(alignment: .center) {
                                         VStack(alignment: .leading, spacing: 6) {
                                             Text("Descubre \nnuevas rutas")
@@ -84,16 +90,16 @@ struct Home: View {
                                                 .foregroundColor(.white)
                                                 .lineLimit(2)
                                                 .minimumScaleFactor(0.8)
-
+                                            
                                             Text("Que nadie se quede, que todos lleguen.")
                                                 .font(.system(size: 13, weight: .semibold))
                                                 .foregroundColor(.white.opacity(0.9))
                                         }
                                         .padding(.leading, 20)
                                         .padding(.vertical, 18)
-
+                                        
                                         Spacer()
-
+                                        
                                         // Trophy (usa tu asset si lo tienes; si no, SF Symbol)
                                     }
                                 }
@@ -107,10 +113,10 @@ struct Home: View {
                                         .foregroundColor(.yellow.opacity(0.95))
                                         .padding(EdgeInsets(top: 0, leading: 250, bottom: 37, trailing: 0))
                                 }
-                                    
+                                
                                 // ---------- Grid principal ----------
                                 HStack(alignment: .top, spacing: 16) {
-
+                                    
                                     // Columna izquierda
                                     VStack(spacing: 16) {
                                         // Mini mapa con label "Tú estás aquí"
@@ -118,11 +124,11 @@ struct Home: View {
                                             RoundedRectangle(cornerRadius: 20)
                                                 .fill(Color.white)
                                                 .shadow(color: .black.opacity(0.10), radius: 8, x: 0, y: 4)
-
+                                            
                                             Map(coordinateRegion: $region)
                                                 .disabled(true)
                                                 .cornerRadius(20)
-
+                                            
                                             Text("Tú estás aquí")
                                                 .font(.system(size: 12, weight: .bold))
                                                 .foregroundColor(.white)
@@ -132,8 +138,8 @@ struct Home: View {
                                                 .clipShape(Capsule())
                                                 .padding(10)
                                         }
-                                        .frame(width: 150, height: 140)
-
+                                        .frame(width: 150, height: leftTopHeight)
+                                        
                                         // Card roja cuadrada
                                         ZStack {
                                             RoundedRectangle(cornerRadius: 20)
@@ -151,41 +157,31 @@ struct Home: View {
                                                     .foregroundColor(.white)
                                             }
                                         }
+                                        .frame(width: 150)
                                         .onTapGesture {
                                             navigateToBBVA = true
                                         }
-
+                                        
                                     }
                                     .frame(width: 150)
-
-                                    // Columna derecha: card amarilla alta
-                                    ZStack(alignment: .bottomLeading) {
-                                        Image("familiafutbol") // imagen real de familias en estadio
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                            .clipped()
-                                            .cornerRadius(20)
-                                        LinearGradient(colors: [.black.opacity(0.1), .black.opacity(0.6)],
-                                                       startPoint: .top, endPoint: .bottom)
-                                            .cornerRadius(20)
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            Text("💡 Consejo inclusivo")
-                                                .font(.caption.bold())
-                                                .foregroundColor(.yellow)
-                                            Text("Recuerda ubicar los accesos accesibles y zonas de lactancia al llegar al estadio.")
-                                                .font(.system(size: 13))
-                                                .foregroundColor(.white)
-                                                .lineLimit(3)
-                                        }
-                                        .padding()
+                                    
+                                    // Columna derecha: tarjeta con imagen, overlay y CTA
+                                    RightTipCard(
+                                        title: "💡 Consejo inclusivo",
+                                        message: "Al llegar, ubica accesos accesibles, zonas de lactancia y puntos de primeros auxilios.",
+                                        chips: ["Accesos", "Lactancia", "Auxilios"],
+                                        imageName: "families-bg",              // 🔸ponle tu asset; si no existe, hace fallback
+                                        ctaTitle: "Ver servicios cercanos"
+                                    ) {
                                     }
-
+                                    .frame(maxWidth: .infinity, minHeight: 270, maxHeight: 320)
+                                    
+                                    
                                 }
                                 .padding(.horizontal, 20)
-
+                                
                                 Spacer(minLength: 10)
-
+                                
                                 // ---------- Bottom Bar azul ----------
                                 HStack(spacing: 0) {
                                     BottomBarButton(system: "mappin.circle") {
@@ -204,12 +200,12 @@ struct Home: View {
                                 .clipShape(Capsule())
                                 .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
                                 .padding(.horizontal, 30)
-                                .padding(.bottom, 100)
+                                .padding(.bottom, 20)
                             }
                         }
                     }
                     .edgesIgnoringSafeArea(.top)
-
+                    
                     // Navegaciones invisibles
                     NavigationLink(destination: Profile().navigationBarBackButtonHidden(true),
                                    isActive: $navigateToProfile) { EmptyView() }
@@ -219,8 +215,10 @@ struct Home: View {
                                    isActive: $navigateToSettings) { EmptyView() }
                     NavigationLink(destination: Languages().navigationBarBackButtonHidden(true),
                                    isActive: $navigateToLanguages) { EmptyView() }
-                    NavigationLink(destination: BBVAView().navigationBarBackButtonHidden(true),
+                    NavigationLink(destination: MapaExteriorView().navigationBarBackButtonHidden(true),
                                    isActive: $navigateToBBVA) { EmptyView() }
+                    NavigationLink(destination: About().navigationBarBackButtonHidden(true),
+                                     isActive: $navigateToAbout) { EmptyView() }
                 }
                 
                 .navigationBarTitleDisplayMode(.inline)
@@ -256,7 +254,8 @@ struct Home: View {
                         navigateToProfile: $navigateToProfile,
                         navigateToHome: $navigateToHome,
                         navigateToSettings: $navigateToSettings,
-                        navigateToLanguages: $navigateToLanguages
+                        navigateToLanguages: $navigateToLanguages,
+                        navigateToAbout: $navigateToAbout
                     )
                     .frame(width: 250)
                     .transition(.move(edge: .leading))
@@ -297,17 +296,17 @@ struct SideMenuView: View {
     @Binding var navigateToHome: Bool
     @Binding var navigateToSettings: Bool
     @Binding var navigateToLanguages: Bool
+    @Binding var navigateToAbout: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             // Perfil
             VStack(alignment: .leading, spacing: 5) {
+            
                 Button(action: {
                     withAnimation {
                         showSideMenu = false
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            navigateToProfile = true
-                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { navigateToProfile = true }
                     }
                 }) {
                     Circle()
@@ -334,7 +333,6 @@ struct SideMenuView: View {
                 MenuItem(icon: "house", title: "Home")
             }
             
-            
             Button(action: {
                 withAnimation {
                     showSideMenu = false
@@ -343,8 +341,16 @@ struct SideMenuView: View {
             }) {
                 MenuItem(icon: "globe", title: "Idiomas")
             }
-            MenuItem(icon: "bell", title: "Notificaciones")
-            MenuItem(icon: "info.circle", title: "Sobre nosotros")
+            
+            Button(action: {
+                withAnimation {
+                    showSideMenu = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { navigateToAbout = true }
+                }
+            }) {
+                MenuItem(icon: "info.circle", title: "Sobre nosotros")
+                
+            }
 
             Spacer()
 
@@ -383,6 +389,136 @@ struct MenuItem: View {
         .foregroundColor(.black)
     }
 }
+
+private struct RightTipCard: View {
+    let title: String
+    let message: String
+    let chips: [String]
+    let imageName: String?
+    let ctaTitle: String
+    let action: () -> Void
+
+    var body: some View {
+        ZStack {
+            Group {
+                if let imageName, UIImage(named: imageName) != nil {
+                    Image(imageName)
+                        .resizable()
+                        .scaledToFill()
+                        .overlay(
+                            LinearGradient(
+                                colors: [.black.opacity(0.05), .black.opacity(0.65)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .clipped()
+                } else {
+                    LinearGradient(
+                        colors: [
+                            Color(red: 255/255, green: 205/255, blue: 80/255),
+                            Color(red: 255/255, green: 190/255, blue: 50/255)
+                        ],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
+                    )
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
+
+            // Contenido
+            VStack(alignment: .leading, spacing: 10) {
+                // Header
+                Text(title)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(.yellow)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.black.opacity(0.25))
+                    .clipShape(Capsule())
+                    .accessibilityAddTraits(.isHeader)
+
+                // Mensaje
+                Text(message)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.white)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(3)
+
+                Spacer(minLength: 0)
+
+                // Chips (alineadas en grid)
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible(), alignment: .leading),
+                        GridItem(.flexible(), alignment: .leading)
+                    ],
+                    alignment: .leading,
+                    spacing: 8
+                ) {
+                    ForEach(chips, id: \.self) { chip in
+                        Text(chip)
+                            .font(.system(size: 12, weight: .semibold))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(Color.white.opacity(0.18))
+                            .clipShape(Capsule())
+                            .foregroundColor(.white)
+                            .fixedSize() // evita que se estiren y mantiene altura pareja
+                    }
+                }
+
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+private struct FlexibleChipRow<Content: View>: View {
+    let items: [String]
+    let content: (String) -> Content
+
+    @State private var totalHeight: CGFloat = .zero
+
+    var body: some View {
+        VStack {
+            GeometryReader { geo in
+                self.generateContent(in: geo)
+            }
+        }
+        .frame(height: totalHeight)
+    }
+
+    private func generateContent(in g: GeometryProxy) -> some View {
+        var width = CGFloat.zero
+        var height = CGFloat.zero
+
+        return ZStack(alignment: .topLeading) {
+            ForEach(items, id: \.self) { item in
+                content(item)
+                    .padding(.trailing, 8)
+                    .alignmentGuide(.leading, computeValue: { d in
+                        if (width + d.width > g.size.width) {
+                            width = 0
+                            height += d.height + 8
+                        }
+                        let result = width
+                        width += d.width + 8
+                        return result
+                    })
+                    .alignmentGuide(.top, computeValue: { _ in height })
+            }
+        }
+        .background(GeometryReader { geo -> Color in
+            DispatchQueue.main.async {
+                self.totalHeight = geo.size.height
+            }
+            return .clear
+        })
+    }
+}
+
 
 #Preview {
     Home()

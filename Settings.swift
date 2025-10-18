@@ -59,6 +59,11 @@ struct Settings: View {
                         EmptyView()
                     }
                     
+                    NavigationLink(destination: About().navigationBarBackButtonHidden(true),
+                                   isActive: $navigateToAbout) {
+                        EmptyView()
+                    }
+                    
                     Button(action: {
                         navigateToHome = true
                     }) {
@@ -84,19 +89,6 @@ struct Settings: View {
                     Divider()
                         .padding(.leading, 80)
                     
-                    // Opción Notificaciones
-                    Button(action: {
-                        navigateToNotifications = true
-                    }) {
-                        SettingsOptionRow(
-                            icon: "bell.fill",
-                            title: "Notificaciones"
-                        )
-                    }
-                    
-                    Divider()
-                        .padding(.leading, 80)
-                    
                     // Opción Sobre nosotros
                     Button(action: {
                         navigateToAbout = true
@@ -108,38 +100,12 @@ struct Settings: View {
                     }
                     
                     Spacer()
-                    
-                    // Botón Cerrar Sesión
-                    Button(action: {
-                        showLogoutAlert = true
-                    }) {
-                        Text("Cerrar Sesión")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 18)
-                            .background(Color(red: 230/255, green: 80/255, blue: 60/255))
-                            .cornerRadius(15)
-                    }
-                    .padding(.horizontal, 30)
-                    .padding(.bottom, 50)
                 }
                 .background(Color.white)
                 .cornerRadius(30, corners: [.topLeft, .topRight])
             }
         }
         .navigationBarHidden(true)
-        .alert(isPresented: $showLogoutAlert) {
-            Alert(
-                title: Text("Cerrar Sesión"),
-                message: Text("¿Estás seguro que deseas cerrar sesión?"),
-                primaryButton: .destructive(Text("Cerrar Sesión")) {
-                    // Aquí iría la lógica de cerrar sesión
-                    print("Sesión cerrada")
-                },
-                secondaryButton: .cancel(Text("Cancelar"))
-            )
-        }
     }
 }
 
